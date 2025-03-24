@@ -1,4 +1,5 @@
 # Taken from: https://github.com/RaivoKoot/Video-Dataset-Loading-Pytorch
+
 """
 BSD 2-Clause License
 
@@ -204,7 +205,7 @@ class VideoFrameDataset(torch.utils.data.Dataset):
 
         return start_indices
 
-    def __getitem__(self, idx: int) -> Union[
+    def __getitem__(self, idx) -> Union[
         Tuple[List[Image.Image], Union[int, List[int]]],
         Tuple['torch.Tensor[num_frames, channels, height, width]', Union[int, List[int]]],
         Tuple[Any, Union[int, List[int]]],

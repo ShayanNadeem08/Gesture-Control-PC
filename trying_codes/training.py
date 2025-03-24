@@ -1,15 +1,26 @@
 
+import sys
 import numpy as np
 import torch
+import torch.nn as nn
+from torch.utils.data import DataLoader
+from sklearn.model_selection import KFold
+import torch.optim as optim
+from preprocessing import convert_batch_grey
 
 # Function to train the model for one epoch
-def train_epoch(model, train_loader, criterion, optimizer, device):
+def train_epoch(model, train_loader, train_idx_list, criterion, optimizer, device):
     model.train()
     running_loss = 0.0
     correct = 0
     total = 0
 
-    for inputs, targets in train_loader:
+    for idx, (inputs, targets) in enumerate(train_loader):
+        print(inputs.size(), targets.size())
+        if idx not in train_idx_list:
+            continue
+
+        inputs = convert_batch_grey(inputs)
         inputs, targets = inputs.to(device), targets.to(device)
 
         # Zero the parameter gradients
@@ -20,7 +31,7 @@ def train_epoch(model, train_loader, criterion, optimizer, device):
         loss = criterion(outputs, targets)
 
         # Backward pass and optimize
-        loss.backward()
+        #loss.backward()
         optimizer.step()
 
         # Statistics
@@ -34,9 +45,8 @@ def train_epoch(model, train_loader, criterion, optimizer, device):
 
     return train_loss, train_acc
 
-
 # Function to evaluate the model
-def evaluate(model, test_loader, criterion, device):
+def validate(model, valid_loader, valid_idx_list, criterion, device):
     model.eval()
     running_loss = 0.0
     correct = 0
@@ -45,7 +55,11 @@ def evaluate(model, test_loader, criterion, device):
     all_targets = []
 
     with torch.no_grad():
-        for inputs, targets in test_loader:
+        for idx, (inputs, targets) in enumerate(valid_loader):
+            if idx not in valid_idx_list:
+                continue
+
+            inputs = convert_batch_grey(inputs)
             inputs, targets = inputs.to(device), targets.to(device)
 
             # Forward pass
@@ -62,13 +76,13 @@ def evaluate(model, test_loader, criterion, device):
             all_preds.extend(predicted.cpu().numpy())
             all_targets.extend(targets.cpu().numpy())
 
-    test_loss = running_loss / total
-    test_acc = 100. * correct / total
+    valid_loss = running_loss / total
+    valid_acc = 100. * correct / total
 
-    return test_loss, test_acc, all_preds, all_targets
+    return valid_loss, valid_acc, all_preds, all_targets
 
-
-def train_and_evaluate(X, y, subject_ids, model_type='densenet'):
+# Function to do KFold cross-validation training
+def kfold_train_and_validate(model, train_loader, device, num_epochs, num_kfold_splits, batch_size):
     """
     Train and evaluate the 3D-CNN model using k-fold cross-validation
     with stratification across subjects.
@@ -82,41 +96,24 @@ def train_and_evaluate(X, y, subject_ids, model_type='densenet'):
     Returns:
         results: Dictionary containing evaluation results
         best_model_state: State dict of the best performing model
-    """
-    # Check for CUDA availability
-    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-    print(f"Using device: {device}")
+    """ 
 
     # Initialize KFold cross-validator
-    n_splits = 5  # 5-fold cross-validation
-    kf = KFold(n_splits=n_splits, shuffle=True, random_state=42)
+    print("Using",num_kfold_splits,"fold cross validation")
+    kf = KFold(n_splits=num_kfold_splits, shuffle=True, random_state=42)
 
     # Initialize lists to store results
     subject_accuracies = []
     all_y_true = []
     all_y_pred = []
 
-    # Cross-validation parameters
-    num_epochs = 10
-    batch_size = 16
-
     # Track the best model across all folds
     best_overall_acc = 0
     final_best_model_state = None
 
     # Iterate through folds
-    for fold, (train_idx, test_idx) in enumerate(kf.split(X.numpy()), 1):
-        print(f"\n--- Fold {fold}/{n_splits} ---")
-
-        # Create PyTorch datasets and dataloaders
-        train_dataset = HandGestureDataset(X[train_idx], y[train_idx])
-        test_dataset = HandGestureDataset(X[test_idx], y[test_idx])
-
-        train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True)
-        test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
-
-        # Create the model
-        model = DenseNet3D(growth_rate=12, block_config=(2, 4, 4), num__init__features=16).to(device)
+    for fold, (train_idx, valid_idx) in enumerate(kf.split(range(len(train_loader))), 1):
+        print(f"Fold {fold}/{num_kfold_splits}:")
 
         # Define loss function and optimizer
         criterion = nn.CrossEntropyLoss()
@@ -131,27 +128,29 @@ def train_and_evaluate(X, y, subject_ids, model_type='densenet'):
         )
 
         # Variables for early stopping
-        best_test_acc = 0
+        best_valid_acc = 0
         best_model_state = None
         patience = 15
         patience_counter = 0
 
         # Training loop
         for epoch in range(num_epochs):
+            train_loss, train_acc, valid_loss, valid_acc = np.random.rand(4)
+            
             # Train for one epoch
-            train_loss, train_acc = train_epoch(model, train_loader, criterion, optimizer, device)
+            train_loss, train_acc = train_epoch(model, train_loader, train_idx, criterion, optimizer, device)
 
             # Evaluate on test set
-            test_loss, test_acc, _, _ = evaluate(model, test_loader, criterion, device)
+            valid_loss, valid_acc, _, _ = validate(model, train_loader, valid_idx, criterion, device)
 
             # Print progress
-            print(f'Epoch {epoch+1}/{num_epochs}: '
-                  f'Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, '
-                  f'Test Loss: {test_loss:.4f}, Test Acc: {test_acc:.2f}%')
+            print(f'  Epoch {epoch+1}/{num_epochs}: '
+                  f'  Train Loss: {train_loss:.4f}, Train Acc: {train_acc:.2f}%, '
+                  f'  Valid Loss: {valid_loss:.4f}, Test Acc: {valid_acc:.2f}%')
 
             # Check for improvement
-            if test_acc > best_test_acc:
-                best_test_acc = test_acc
+            if valid_acc > best_valid_acc:
+                best_valid_acc = valid_acc
                 best_model_state = model.state_dict().copy()
                 patience_counter = 0
             else:
@@ -164,18 +163,18 @@ def train_and_evaluate(X, y, subject_ids, model_type='densenet'):
         model.load_state_dict(best_model_state)
 
         # Final evaluation
-        _, final_test_acc, y_pred, y_true = evaluate(model, test_loader, criterion, device)
+        _, final_valid_acc, y_pred, y_true = validate(model, valid_loader, criterion, device)
 
         # Store results
-        subject_accuracies.append(final_test_acc / 100.0)
+        subject_accuracies.append(final_valid_acc / 100.0)
         all_y_true.extend(y_true)
         all_y_pred.extend(y_pred)
 
-        print(f"Fold {fold} Final Test Accuracy: {final_test_acc:.2f}%")
+        print(f"Fold {fold} Final Validation Accuracy: {final_valid_acc:.2f}%")
 
         # Keep track of the best model across all folds
-        if final_test_acc > best_overall_acc:
-            best_overall_acc = final_test_acc
+        if final_valid_acc > best_overall_acc:
+            best_overall_acc = final_valid_acc
             final_best_model_state = best_model_state.copy()
 
     # Calculate overall metrics
@@ -191,4 +190,5 @@ def train_and_evaluate(X, y, subject_ids, model_type='densenet'):
         'y_pred': all_y_pred
     }
 
-    return results, final_best_model_state
+    return results, final_best_model_state, model
+
