@@ -1,4 +1,5 @@
 import pyautogui
+import time
 
 gesture_to_key = {
     'up'  : 'up',     # Jump
@@ -9,19 +10,22 @@ gesture_to_key = {
 
 def sendKeyPress(gesture_que, comm_que):
     """ This function performs action when a prediction is made."""
+
     while True:
+        time.sleep(0.125)
         try:
-            command = comm_que.get_nowait()
-            if command == "END": return
-        except queue.Empty:
+            command = comm_que.get(False)
+            if command == "END": break
+        except:
             pass
 
         try:
             prediction, confidence = gesture_que.get_nowait()
+            
+            if prediction != "Insufficient frames":
+                if confidence > 0.9:
+                    print(gesture_to_key[prediction])
+                    pyautogui.press(gesture_to_key[prediction])
         except:
-            continue
-
-        if prediction != "Insufficient frames":
-            if confidence > 0.9:
-                print(gesture_to_key[prediction])
-                pyautogui.press(gesture_to_key[prediction])
+            pass
+    print("E")
