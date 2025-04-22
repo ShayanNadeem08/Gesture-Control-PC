@@ -1,11 +1,21 @@
 """Live Prediction with Background Blurring Preprocessing"""
+import time
+t0 = time.time()
+print(time.time()-t0); t0=time.time()
 import cv2
+print("cv:",time.time()-t0); t0=time.time()
 import numpy as np
-import torch
+print("np:",time.time()-t0); t0=time.time()
+from torch import cat as torch_cat, device as torch_device, cuda as torch_cuda, load as torch_load, stack as torch_stack, no_grad as torch_no_grad, max as torch_max
+print("torch:",time.time()-t0); t0=time.time()
 import torch.nn as nn
-import torchvision.transforms as transforms
+print("nn:",time.time()-t0); t0=time.time()
+from torchvision.transforms import Normalize, ToTensor, Resize, Compose
+print("transforms:",time.time()-t0); t0=time.time()
 from collections import deque
+print("deque:",time.time()-t0); t0=time.time()
 import mediapipe as mp
+print("mp:",time.time()-t0); t0=time.time()
 import matplotlib.pyplot as plt
 from PIL import Image
 import time
@@ -43,9 +53,9 @@ class DenseBlock3D(nn.Module):
     def forward(self, x):
         features = [x]
         for layer in self.layers:
-            new_feature = layer(torch.cat(features, 1))
+            new_feature = layer(torch_cat(features, 1))
             features.append(new_feature)
-        return torch.cat(features, 1)
+        return torch_cat(features, 1)
 
 
 class TransitionLayer3D(nn.Module):
@@ -125,9 +135,9 @@ class GestureRecognition:
         self.mp_drawing = mp.solutions.drawing_utils
         
         # Load the trained model
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        self.device = torch_device("cuda" if torch_cuda.is_available() else "cpu")
         self.model = DenseNet3D(growth_rate=12, block_config=(2, 4, 4), num_init_features=16).to(self.device)
-        self.model.load_state_dict(torch.load(model_path, map_location=self.device))
+        self.model.load_state_dict(torch_load(model_path, map_location=self.device))
         self.model.eval()
         
         # Gesture classes
@@ -147,10 +157,10 @@ class GestureRecognition:
         self.collection_end_time = 0
         
         # Define the same transformation pipeline as in training
-        self.transform = transforms.Compose([
-            transforms.Resize((64, 64)),
-            transforms.ToTensor(),
-            transforms.Normalize(mean=[0.5], std=[0.5])
+        self.transform = Compose([
+            Resize((64, 64)),
+            ToTensor(),
+            Normalize(mean=[0.5], std=[0.5])
         ])
         
         # FPS calculation
@@ -300,15 +310,15 @@ class GestureRecognition:
             return "Hand not consistently detected", 0.0
         
         # Stack frames into a sequence
-        sequence = torch.stack(list(self.frame_buffer))  # Shape: [frames, channels, height, width]
+        sequence = torch_stack(list(self.frame_buffer))  # Shape: [frames, channels, height, width]
         sequence = sequence.permute(1, 0, 2, 3).unsqueeze(0)  # Reshape to [1, channels, frames, height, width]
         
         # Make prediction
-        with torch.no_grad():
+        with torch_no_grad():
             sequence = sequence.to(self.device)
             outputs = self.model(sequence)
-            probabilities = torch.nn.functional.softmax(outputs, dim=1)
-            confidence, prediction = torch.max(probabilities, 1)
+            probabilities = nn.functional.softmax(outputs, dim=1)
+            confidence, prediction = torch_max(probabilities, 1)
             
         # Get prediction class and confidence
         predicted_class = self.gesture_classes[prediction.item()]
