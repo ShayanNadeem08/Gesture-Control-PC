@@ -1,0 +1,114 @@
+' IN THE NAME OF  ALLAH , THE MOST GRACIOUS, THE MOST MERCIFUL.
+
+' Set gestures
+gestures[0] = "down"
+gestures[1] = "left"
+gestures[2] = "right"
+gestures[3] = "up"
+
+'Load current settings
+settings_file=Program.Directory+"/gesture_map.txt"
+LoadSettings()
+
+'Window properties
+GraphicsWindow.Show()
+GraphicsWindow.Title="Hand gesture recogination"
+w=600
+h=400
+GraphicsWindow.Width=w
+GraphicsWindow.Height=h
+GraphicsWindow.FontSize = 30
+GraphicsWindow.DrawBoundText(0,0,w,"Hand gesture recogination system")
+window_settings=""
+
+'Buttons
+button_w=200
+button_h=40
+GraphicsWindow.FontSize = 24
+
+button_run=Controls.AddButton("Run", w/2-button_w/2, h/3)
+Controls.SetSize(button_run, button_w, button_h)
+button_setting=Controls.AddButton("Settings", w/2-button_w/2, h*2/3)
+Controls.SetSize(button_setting, button_w, button_h)
+
+'Action on button press 
+Controls.ButtonClicked=OnButtonClick
+Sub OnButtonClick
+  button_pressed = Controls.LastClickedButton
+  
+  ' Main window buttons
+  If button_pressed = button_run Then
+    ' Start python app
+    LDProcess.Start(Program.Directory+"/runapp.bat", Program.Directory)
+  ElseIf button_pressed = button_setting Then
+    OpenSettings()
+  EndIf
+  
+  'Settings window buttons
+  If button_pressed = button_record_down Then
+    down_gesture = Text.ConvertToLowerCase(GraphicsWindow.LastKey)
+    DrawSettings()
+  ElseIf button_pressed = button_record_left Then
+    left_gesture = Text.ConvertToLowerCase(GraphicsWindow.LastKey)
+    DrawSettings()
+  ElseIf button_pressed = button_record_right Then
+    right_gesture = Text.ConvertToLowerCase(GraphicsWindow.LastKey)
+    DrawSettings()
+  ElseIf button_pressed = button_record_up Then
+    up_gesture = Text.ConvertToLowerCase(GraphicsWindow.LastKey)
+    DrawSettings()
+  ElseIf button_pressed = button_ok_settings Then
+    SaveSettings()
+  EndIf
+EndSub
+  
+Sub OpenSettings
+  window_settings = LDWindows.Create()
+  LDGraphicsWindow.ExitOnClose=0
+  GraphicsWindow.Title="Settings"
+  DrawSettings()
+EndSub
+  
+Sub DrawSettings
+  GraphicsWindow.Clear()
+  GraphicsWindow.BrushColor="Blue"
+  GraphicsWindow.FontSize=24
+  GraphicsWindow.DrawBoundText(0, 0, w, "Configure hand gestures")
+  GraphicsWindow.FontSize=18
+  GraphicsWindow.DrawBoundText(0, 50, lw, "Press key and click set")
+  
+  'Gesture labels
+  GraphicsWindow.BrushColor="Black"
+  lw=300
+  lh=30
+  GraphicsWindow.DrawBoundText(w/16, h/4,      lw, "Gesture:   Action")
+  GraphicsWindow.DrawBoundText(w/16, h/4+2*lh, lw, "Down:      "+down_gesture)
+  GraphicsWindow.DrawBoundText(w/16, h/4+3*lh, lw, "Left:         "+left_gesture)
+  GraphicsWindow.DrawBoundText(w/16, h/4+4*lh, lw, "Right:       "+right_gesture)
+  GraphicsWindow.DrawBoundText(w/16, h/4+5*lh, lw, "Up:           "+up_gesture)
+  
+  'Button to record current action
+  GraphicsWindow.FontSize=14
+  button_record_down =  Controls.AddButton("Set", w/16+lw, h/4+2*lh)
+  button_record_left =  Controls.AddButton("Set", w/16+lw, h/4+3*lh)
+  button_record_right = Controls.AddButton("Set", w/16+lw, h/4+4*lh)
+  button_record_up =    Controls.AddButton("Set", w/16+lw, h/4+5*lh)
+  
+  ' Ok/Cancel button
+  button_ok_settings = Controls.AddButton("   Ok   ", w/16+lw-20, h*3/4)
+ 
+EndSub
+
+Sub LoadSettings
+  down_gesture = File.ReadLine(settings_file, 1)
+  left_gesture = File.ReadLine(settings_file, 2)
+  right_gesture = File.ReadLine(settings_file, 3)
+  up_gesture = File.ReadLine(settings_file, 4)
+EndSub
+
+Sub SaveSettings
+  File.WriteLine(settings_file,1,down_gesture)
+  File.WriteLine(settings_file,2,left_gesture)
+  File.WriteLine(settings_file,3,right_gesture)
+  File.WriteLine(settings_file,4,up_gesture)
+EndSub

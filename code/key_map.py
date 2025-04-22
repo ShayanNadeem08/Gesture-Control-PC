@@ -1,12 +1,13 @@
 import pyautogui
 import time
 
-gesture_to_key = {
-    'up'  : 'up',     # Jump
-    'down': 'down',   # Slide
-    'left': 'left',   # Move left
-    'right':'right'   # Move right
-}
+# Load key map from file
+gesture_to_key = {}
+gesture_file = open("../app/gesture_map.txt")
+gesture_to_key["down"] = gesture_file.readline()
+gesture_to_key["left"] = gesture_file.readline()
+gesture_to_key["right"] = gesture_file.readline()
+gesture_to_key["up"] = gesture_file.readline()
 
 def sendKeyPress(gesture_que, comm_que):
     """ This function performs action when a prediction is made."""

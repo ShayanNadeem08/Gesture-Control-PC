@@ -2,7 +2,8 @@
 A deep learning-based real-time hand gesture recognition system optimized for gaming applications. This project enhances user experience by replacing traditional input devices with natural hand movements.
 
 ### Usage
-Run: ```./run/app```
+Run: ```./run/gui```
+Run without gui: ```./run/app```
 Train: Train_model.ipynb\
 Capture data: Capture_dataset.ipynb\
 
@@ -11,6 +12,11 @@ Capture data: Capture_dataset.ipynb\
 Contains scripts to run the product.\
 **run.bat**: Runs system.\
 **clean.bat**: Clears the build files generated when running.
+
+#### app:
+Contains source and execuateble files for gui apps.\
+Source code: app.sb\
+Execuatable code: app.exe\
 
 #### codes:
 Contains files used to train model.
