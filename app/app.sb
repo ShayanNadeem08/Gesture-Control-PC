@@ -1,35 +1,32 @@
 ' IN THE NAME OF  ALLAH , THE MOST GRACIOUS, THE MOST MERCIFUL.
 
-' Set gestures
-gestures[0] = "down"
-gestures[1] = "left"
-gestures[2] = "right"
-gestures[3] = "up"
-
-'Load current settings
 settings_file=Program.Directory+"/gesture_map.txt"
 LoadSettings()
+DrawMainWindow()
 
-'Window properties
-GraphicsWindow.Show()
-GraphicsWindow.Title="Hand gesture recogination"
-w=600
-h=400
-GraphicsWindow.Width=w
-GraphicsWindow.Height=h
-GraphicsWindow.FontSize = 30
-GraphicsWindow.DrawBoundText(0,0,w,"Hand gesture recogination system")
-window_settings=""
+Sub DrawMainWindow
+  'Window properties
+  GraphicsWindow.Show()
+  GraphicsWindow.Clear()
+  GraphicsWindow.Title="Hand gesture recogination"
+  w=600
+  h=400
+  GraphicsWindow.Width=w
+  GraphicsWindow.Height=h
+  GraphicsWindow.BrushColor="Blue"
+  GraphicsWindow.FontSize = 30
+  GraphicsWindow.DrawBoundText(0,0,w,"Hand gesture recogination system")
 
-'Buttons
-button_w=200
-button_h=40
-GraphicsWindow.FontSize = 24
+  'Buttons
+  button_w=200
+  button_h=40
+  GraphicsWindow.FontSize = 24
 
-button_run=Controls.AddButton("Run", w/2-button_w/2, h/3)
-Controls.SetSize(button_run, button_w, button_h)
-button_setting=Controls.AddButton("Settings", w/2-button_w/2, h*2/3)
-Controls.SetSize(button_setting, button_w, button_h)
+  button_run=Controls.AddButton("Run", w/2-button_w/2, h/3)
+  Controls.SetSize(button_run, button_w, button_h)
+  button_setting=Controls.AddButton("Settings", w/2-button_w/2, h*2/3)
+  Controls.SetSize(button_setting, button_w, button_h)
+EndSub
 
 'Action on button press 
 Controls.ButtonClicked=OnButtonClick
@@ -41,7 +38,7 @@ Sub OnButtonClick
     ' Start python app
     LDProcess.Start(Program.Directory+"/runapp.bat", Program.Directory)
   ElseIf button_pressed = button_setting Then
-    OpenSettings()
+    DrawSettings()
   EndIf
   
   'Settings window buttons
@@ -59,18 +56,15 @@ Sub OnButtonClick
     DrawSettings()
   ElseIf button_pressed = button_ok_settings Then
     SaveSettings()
+    DrawMainWindow()
+  ElseIf button_pressed = button_cancel_settings Then
+    DrawMainWindow()
   EndIf
 EndSub
-  
-Sub OpenSettings
-  window_settings = LDWindows.Create()
-  LDGraphicsWindow.ExitOnClose=0
-  GraphicsWindow.Title="Settings"
-  DrawSettings()
-EndSub
-  
+
 Sub DrawSettings
   GraphicsWindow.Clear()
+  GraphicsWindow.Title="Settings"
   GraphicsWindow.BrushColor="Blue"
   GraphicsWindow.FontSize=24
   GraphicsWindow.DrawBoundText(0, 0, w, "Configure hand gestures")
@@ -95,8 +89,9 @@ Sub DrawSettings
   button_record_up =    Controls.AddButton("Set", w/16+lw, h/4+5*lh)
   
   ' Ok/Cancel button
-  button_ok_settings = Controls.AddButton("   Ok   ", w/16+lw-20, h*3/4)
- 
+  button_ok_settings = Controls.AddButton("   Ok   ", w/16+lw-80, h*3/4)
+  button_cancel_settings = Controls.AddButton("Cancel", w/16+lw-20, h*3/4)
+  
 EndSub
 
 Sub LoadSettings
