@@ -93,6 +93,7 @@ Sub DrawSettings
   button_ok_settings = Controls.AddButton("   Ok   ", w/16+lw-80, h*3/4)
   button_cancel_settings = Controls.AddButton("Cancel", w/16+lw-20, h*3/4)
   
+  
 EndSub
 
 Sub LoadSettings

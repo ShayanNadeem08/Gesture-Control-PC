@@ -14,13 +14,6 @@ import time
 import os
 import pyautogui
 
-gesture_to_key = {}
-gesture_file = open("../app/gesture_map.txt")
-gesture_to_key["down"] = gesture_file.readline()
-gesture_to_key["left"] = gesture_file.readline()
-gesture_to_key["right"] = gesture_file.readline()
-gesture_to_key["up"] = gesture_file.readline()
-
 def get_trace_frame(frame, hand_landmarks):
     trace_frame = torch.zeros(64,64)
     for landmark in hand_landmarks.landmark:
@@ -279,7 +272,7 @@ class GestureRecognition:
                 elapsed_time = current_time - self.collection_start_time
                 
                 # Add delay in frame capture
-                time.sleep(1/12)
+                # time.sleep(1/12)
                 
                 # Process the current frame with background blurring
                 processed_frame, marked_frame, blurred_hand = self.preprocess_hand_frame(frame, results)
@@ -295,11 +288,6 @@ class GestureRecognition:
                 # Update collection status with time remaining
                 time_left = max(0, self.collection_time - elapsed_time)
                 collecting_status = f""
-                
-                # Add a progress bar
-                progress = int(min(elapsed_time / self.collection_time, 1.0) * 200)
-                cv2.rectangle(frame, (10, 150), (210, 170), (0, 0, 0), -1)
-                cv2.rectangle(frame, (10, 150), (10 + progress, 170), (0, 255, 0), -1)
                 
                 # If collection time is over
                 if True or elapsed_time >= self.collection_time:

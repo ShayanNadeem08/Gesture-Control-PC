@@ -14,13 +14,12 @@ comm_que = Queue()
 gesture_recognition = GestureRecognition("", action_function=gesture_que)
 
 # Run threads
-gesture_recognition.run()
-# thread1 = Thread(target=gesture_recognition.run)
-# thread2 = Thread(target=sendKeyPress, args=(gesture_que, comm_que))
+thread1 = Thread(target=gesture_recognition.run)
+thread2 = Thread(target=sendKeyPress, args=(gesture_que, comm_que))
 
-# thread1.start()
-# thread2.start()
-# thread1.join()
-# comm_que.put("END")
-# thread2.join()
+thread1.start()
+thread2.start()
+thread1.join()
+comm_que.put("END")
+thread2.join()
 
