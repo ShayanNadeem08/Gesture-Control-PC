@@ -58,6 +58,7 @@ Sub OnButtonClick
     SaveSettings()
     DrawMainWindow()
   ElseIf button_pressed = button_cancel_settings Then
+    LoadSettings()
     DrawMainWindow()
   EndIf
 EndSub

@@ -1,0 +1,29 @@
+def load_videoframe_dataset(path):
+    """
+    Expects directory structure: 
+    path/class/video/frame
+    Class names are taken from their folder names.
+    Returns numpy array (classes,videos,frames,height,width,channels)
+    """
+    NUM_FRAMES = 5
+    dataset = []
+    for videoclass in os.listdir(path):
+        class_=[]
+        for videofolder in os.listdir(path+"/"+videoclass):
+            video = []
+            frame_count = 0
+            for framefile in os.listdir(path+"/"+videoclass+"/"+videofolder):
+                frame = cv2.imread(path+"/"+videoclass+"/"+videofolder+"/"+framefile, cv2.IMREAD_COLOR)
+                assert frame is not None
+                video.append(frame)
+                frame_count+=1
+                if frame_count==5: break
+            if frame_count<NUM_FRAMES:
+                for i in range(NUM_FRAMES-frame_count):
+                    video.append(frame)
+            class_.append(video)
+        dataset.append(class_)
+    return np.array(dataset)
+    
+dataset=load_videoframe_dataset(f"C:/Users/PMLS/FYP/datasets/STMM/image")
+print("Dataset loaded")

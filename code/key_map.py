@@ -1,4 +1,5 @@
 import pyautogui
+import keyboard
 import time
 
 # Load key map from file
@@ -13,20 +14,24 @@ def sendKeyPress(gesture_que, comm_que):
     """ This function performs action when a prediction is made."""
 
     while True:
-        time.sleep(0.125)
+        # Wait between key presses
+        time.sleep(1/16)
+
+        # Recieve commands from main thread
         try:
-            command = comm_que.get(False)
+            command = comm_que.get_nowait()
             if command == "END": break
         except:
             pass
-
+        
+        # Recieve prediction from other thread
         try:
             prediction, confidence = gesture_que.get_nowait()
             
             if prediction != "Insufficient frames":
-                if confidence > 0.9:
-                    print(gesture_to_key[prediction])
-                    pyautogui.press(gesture_to_key[prediction])
+                print(gesture_to_key[prediction])
+                pyautogui.press(gesture_to_key[prediction])
+                keyboard.send(gesture_to_key[prediction])
         except:
             pass
-    print("E")
+    print("End")
