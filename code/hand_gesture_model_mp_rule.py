@@ -241,7 +241,7 @@ class GestureRecognition:
                     dX, dY = np.mean(dresults,0)
                     
                     confidence = 0
-                    epsilon = 1
+                    epsilon = 2
                     if abs(dX) < epsilon and abs(dY) < epsilon:
                         prediction_result = "none"
                     elif abs(dX) > abs(dY):
@@ -272,7 +272,7 @@ class GestureRecognition:
                 elapsed_time = current_time - self.collection_start_time
                 
                 # Add delay in frame capture
-                # time.sleep(1/12)
+                # time.sleep(1/64)
                 
                 # Process the current frame with background blurring
                 processed_frame, marked_frame, blurred_hand = self.preprocess_hand_frame(frame, results)

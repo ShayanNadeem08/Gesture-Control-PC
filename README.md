@@ -2,6 +2,8 @@
 A deep learning-based real-time hand gesture recognition system optimized for gaming applications. This project enhances user experience by replacing traditional input devices with natural hand movements.
 
 ### Run
+app/app.exe is the executable. Run it by double clicking or run one of the following commands in this directory:
+
 Run: 
 ```
 ./run/gui

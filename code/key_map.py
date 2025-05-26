@@ -2,18 +2,11 @@ import pyautogui
 import keyboard
 import time
 
-# Load key map from file
-gesture_to_key = {}
-gesture_file = open("../app/gesture_map.txt")
-gesture_to_key["down"] = gesture_file.readline()[:-1]
-gesture_to_key["left"] = gesture_file.readline()[:-1]
-gesture_to_key["right"] = gesture_file.readline()[:-1]
-gesture_to_key["up"] = gesture_file.readline()[:-1]
 
-print(gesture_to_key)
-
-def sendKeyPress(gesture_que, comm_que):
+def sendKeyPress(gesture_que, comm_que, config):
     """ This function performs action when a prediction is made."""
+    # Load key map from settings
+    gesture_to_key = config["gesture_map"]
 
     while True:
         # Wait between key presses

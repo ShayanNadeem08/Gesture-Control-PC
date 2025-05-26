@@ -1,6 +1,6 @@
 ' IN THE NAME OF  ALLAH , THE MOST GRACIOUS, THE MOST MERCIFUL.
 
-settings_file=Program.Directory+"/gesture_map.txt"
+settings_file=Program.Directory+"/config.json"
 LoadSettings()
 DrawMainWindow()
 
@@ -96,16 +96,33 @@ Sub DrawSettings
   
 EndSub
 
-Sub LoadSettings
-  down_gesture = File.ReadLine(settings_file, 1)
-  left_gesture = File.ReadLine(settings_file, 2)
-  right_gesture = File.ReadLine(settings_file, 3)
-  up_gesture = File.ReadLine(settings_file, 4)
+Sub LoadSettings 
+  ' Saves settings as a json file
+  down_gesture = File.ReadLine(settings_file, 3)
+  left_gesture = File.ReadLine(settings_file, 4)
+  right_gesture = File.ReadLine(settings_file, 5)
+  up_gesture = File.ReadLine(settings_file, 6)
+  
+  st_pos = Text.GetIndexOf(down_gesture,":")+2
+  down_gesture = Text.GetSubTextToEnd(down_gesture, st_pos)
+  down_gesture = Text.GetSubText(down_gesture, 1, Text.GetLength(down_gesture)-2)
+  left_gesture = Text.GetSubTextToEnd(left_gesture, st_pos)
+  left_gesture = Text.GetSubText(left_gesture, 1, Text.GetLength(left_gesture)-2)
+  right_gesture = Text.GetSubTextToEnd(right_gesture, st_pos)
+  right_gesture = Text.GetSubText(right_gesture, 1, Text.GetLength(right_gesture)-2)
+  up_gesture = Text.GetSubTextToEnd(up_gesture, st_pos)
+  up_gesture = Text.GetSubText(up_gesture, 1, Text.GetLength(up_gesture)-1)
 EndSub
 
 Sub SaveSettings
-  File.WriteLine(settings_file,1,down_gesture)
-  File.WriteLine(settings_file,2,left_gesture)
-  File.WriteLine(settings_file,3,right_gesture)
-  File.WriteLine(settings_file,4,up_gesture)
+  ' Saves settings as a json file
+  s = Text.GetCharacter(34)
+  File.WriteLine(settings_file,1,"{")
+  File.WriteLine(settings_file,2,s+"gesture_map"+s+": {")
+  File.WriteLine(settings_file,3,s+"down"+s+"       :"+s+down_gesture+s+",")
+  File.WriteLine(settings_file,4,s+"left"+s+"       :"+s+left_gesture+s+",")
+  File.WriteLine(settings_file,5,s+"right"+s+"      :"+s+right_gesture+s+",")
+  File.WriteLine(settings_file,6,s+"up"+s+"         :"+s+up_gesture+s)
+  File.WriteLine(settings_file,7,"}")
+  File.WriteLine(settings_file,8,"}")
 EndSub
