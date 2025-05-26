@@ -1,7 +1,7 @@
 # Gesture-Control-PC
 A deep learning-based real-time hand gesture recognition system optimized for gaming applications. This project enhances user experience by replacing traditional input devices with natural hand movements.
 
-### Usage
+### Run
 Run: 
 ```
 ./run/gui
@@ -27,9 +27,12 @@ Execuatable code: app.exe\
 #### codes:
 Contains files used to train model.
 
-#### model:
-Contains saved trained model.
+#### code_dataset:
+Contains files used to generate dataset.
 
-#### results:
+#### code_old:
+Contains old codes tried previously during development.
+
+#### output:
 Contains logs and plots generated during training.
 
