@@ -35,6 +35,9 @@ Contains files used to generate dataset.
 #### code_old:
 Contains old codes tried previously during development.
 
+#### model:
+Contains trained model(s).
+
 #### output:
 Contains logs and plots generated during training.
 

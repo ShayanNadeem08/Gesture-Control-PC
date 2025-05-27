@@ -14,6 +14,9 @@ import time
 import os
 import pyautogui
 
+GESTURE_MAP_STR2NUM = {'down': 0, 'left': 1, 'right': 2, 'up': 3, "none":4}
+GESTURE_MAP_NUM2STR = {0: 'down', 1: 'left', 2: 'right', 3: 'up', 4:"none"}
+
 def get_trace_frame(frame, hand_landmarks):
     trace_frame = torch.zeros(64,64)
     for landmark in hand_landmarks.landmark:
@@ -52,6 +55,9 @@ class GestureRecognition:
         
         self.device = torch_device("cuda" if torch_cuda.is_available() else "cpu")
         
+        # Load model
+        self.model = torch.load(model_path).to(self.device)
+
         # Gesture classes
         self.gesture_classes = ['down', 'left', 'right', 'up', "none"]
         
@@ -85,6 +91,11 @@ class GestureRecognition:
         # Create directory for debug frames (to visualize preprocessing steps)
         self.debug_dir = "../output/debug_frames"
         os.makedirs(self.debug_dir, exist_ok=True)
+    
+    def predict_gesture(self, x):
+        y_hat = self.model(x)
+        _, y_hat = torch.max(y_hat,1)
+        return y_hat
                 
     def preprocess_hand_frame(self, frame, results):
         """Extract hand from frame and preprocess it with background blurring"""
@@ -240,20 +251,10 @@ class GestureRecognition:
                     dresults = res-prev_res
                     dX, dY = np.mean(dresults,0)
                     
+                    pred = self.predict_gesture(torch.from_numpy(np.array([[dX,dY]]).astype(np.float32)))
+                    prediction_result = GESTURE_MAP_NUM2STR[int(pred)]
+                    
                     confidence = 0
-                    epsilon = 2
-                    if abs(dX) < epsilon and abs(dY) < epsilon:
-                        prediction_result = "none"
-                    elif abs(dX) > abs(dY):
-                        if dX > 0:
-                            prediction_result="left"
-                        else:
-                            prediction_result="right"
-                    elif abs(dX) < abs(dY):
-                        if dY > 0:
-                            prediction_result="down"
-                        else:
-                            prediction_result="up"
             else:
                 prediction_result = "none"
             
