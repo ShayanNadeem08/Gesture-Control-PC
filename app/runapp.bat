@@ -1,2 +1,3 @@
-@cd %1/../code
-@start pythonw app_integrate.py
+@cd ../app_integrate
+@start app_integrate.exe
+::@start pythonw app_integrate.py

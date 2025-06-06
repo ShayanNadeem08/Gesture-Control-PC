@@ -21,7 +21,7 @@ def sendKeyPress(gesture_que, comm_que, config):
         
         # Recieve prediction from other thread
         try:
-            prediction, confidence = gesture_que.get_nowait()
+            prediction = gesture_que.get_nowait()
             
             if prediction != "Insufficient frames":
                 print(gesture_to_key[prediction])

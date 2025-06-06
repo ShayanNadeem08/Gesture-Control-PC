@@ -6,7 +6,6 @@ import json
 # Import from current files
 from hand_gesture_model_mp_rule import GestureRecognition
 from key_map import sendKeyPress
-from model import MLE
 
 # Read settings file
 f = open("../app/config.json")
@@ -18,7 +17,7 @@ gesture_que = Queue()
 comm_que = Queue()
 
 # Initialize and run the gesture recognition system
-gesture_recognition = GestureRecognition("../model/MLE.model", action_function=gesture_que)
+gesture_recognition = GestureRecognition("", action_function=gesture_que)
 
 # Run threads
 thread1 = Thread(target=gesture_recognition.run)
