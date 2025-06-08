@@ -7,6 +7,14 @@ import json
 from hand_gesture_model_mp_rule import GestureRecognition
 from key_map import sendKeyPress
 
+# Remove splash screen
+# pyi_splash only works if running with pyinstaller
+try:
+    import pyi_splash
+    pyi_splash.close()
+except:
+    pass
+
 # Read settings file
 f = open("../app/config.json")
 config = json.load(f)
