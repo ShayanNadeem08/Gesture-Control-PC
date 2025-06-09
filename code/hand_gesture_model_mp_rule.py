@@ -146,14 +146,14 @@ class GestureRecognition:
                     res=[]
                     prev_res=[]
                     for landmark in hand_landmarks.landmark:
-                        x, y = landmark.x, landmark.y
+                        x, y = 64*landmark.x, 64*landmark.y
                         res.append([x,y])
                     for landmark in prev_hand_landmarks.landmark:
-                        x, y = landmark.x, landmark.y
+                        x, y = 64*landmark.x, 64*landmark.y
                         prev_res.append([x,y])
                     
-                    res = 64*np.array(res)
-                    prev_res = 64*np.array(prev_res)
+                    res = np.array(res)
+                    prev_res = np.array(prev_res)
                     
                     dresults = res-prev_res
                     dX, dY = np.mean(dresults,0)

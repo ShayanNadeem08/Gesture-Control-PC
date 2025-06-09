@@ -1,11 +1,15 @@
 # -*- mode: python ; coding: utf-8 -*-
 
+import os
+
+mp_path = os.getenv('APPDATA')+"\\Python\\Python312\\site-packages\\mediapipe\\modules\\"
 
 a = Analysis(
     ['app_integrate.py'],
     pathex=[],
     binaries=[],
-    datas=[('C:\\Users\\PMLS\\AppData\\Roaming\\Python\\Python312\\site-packages\\mediapipe\\modules', 'mediapipe\\modules\\')],
+    datas=[(mp_path+'\\hand_landmark', 'mediapipe\\modules\\hand_landmark'),
+           (mp_path+'\\palm_detection', 'mediapipe\\modules\\palm_detection')],
     hiddenimports=[],
     hookspath=[],
     hooksconfig={},
