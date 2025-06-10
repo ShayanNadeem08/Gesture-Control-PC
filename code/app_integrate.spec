@@ -1,8 +1,13 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import os
-
-mp_path = os.getenv('APPDATA')+"\\Python\\Python312\\site-packages\\mediapipe\\modules\\"
+import sys
+# Search for mediapipe package
+for path in sys.path:
+    if os.path.isdir(path):
+        if "mediapipe" in os.listdir(path):
+            mp_path = path+"\\mediapipe\\modules\\"
+            break
 
 a = Analysis(
     ['app_integrate.py'],
