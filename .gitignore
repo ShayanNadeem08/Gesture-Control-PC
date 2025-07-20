@@ -1,5 +1,8 @@
 __pycache__
 .ipynb_checkpoints
 results
+app_integrate
+output
+Setup.exe
 *.jpg
 *.png
